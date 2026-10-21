@@ -2,6 +2,7 @@ import {AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame} from 'remoti
 import {FONT_STACK} from '../theme';
 import {J} from './timeline';
 import {ClockHUD, Paper, Sheet, TitleBlock} from './kit';
+import {Camera} from './Camera';
 import {Batch, CTA, DrawingIn, Hook, Inspect, Program, Proof, Range, Sample, Turning} from './Scenes';
 
 const SCENES = [
@@ -27,14 +28,16 @@ export const Journey: React.FC = () => (
   <AbsoluteFill style={{fontFamily: FONT_STACK, WebkitFontSmoothing: 'antialiased'}}>
     {/* Original score + SFX. Regenerate: python3 scripts/compose_journey.py */}
     <Audio src={staticFile('audio/haixing-journey.wav')} />
-    <Paper />
-    {SCENES.map(([s, el], i) => (
-      <Sequence key={i} from={s.from} durationInFrames={s.duration}>
-        <Sheet duration={s.duration} last={i === SCENES.length - 1}>
-          {el}
-        </Sheet>
-      </Sequence>
-    ))}
+    <Camera>
+      <Paper />
+      {SCENES.map(([s, el], i) => (
+        <Sequence key={i} from={s.from} durationInFrames={s.duration}>
+          <Sheet duration={s.duration} first={i === 0} last={i === SCENES.length - 1}>
+            {el}
+          </Sheet>
+        </Sequence>
+      ))}
+    </Camera>
     <ClockHUD />
     <Block />
   </AbsoluteFill>

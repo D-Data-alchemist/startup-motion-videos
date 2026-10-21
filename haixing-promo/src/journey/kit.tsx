@@ -61,12 +61,40 @@ export const ClockHUD: React.FC = () => {
   );
 };
 
-// Scene wrapper: slides in like a new sheet and dissolves out
-export const Sheet: React.FC<{duration: number; children: React.ReactNode; last?: boolean}> = ({duration, children, last}) => {
+// Scene wrapper: whip-pans in from the right with motion blur and whips out to the left
+export const Sheet: React.FC<{duration: number; children: React.ReactNode; last?: boolean; first?: boolean}> = ({duration, children, last, first}) => {
   const frame = useCurrentFrame();
-  const inP = interpolate(frame, [0, XF], [0, 1], {...clamp, easing: EASE.out});
+  const inP = first ? 1 : interpolate(frame, [0, XF], [0, 1], {...clamp, easing: EASE.out});
   const outP = last ? 0 : interpolate(frame, [duration - XF, duration], [0, 1], {...clamp, easing: EASE.in});
-  return <AbsoluteFill style={{opacity: inP * (1 - outP), transform: `translateX(${(1 - inP) * 80 - outP * 80}px)`}}>{children}</AbsoluteFill>;
+  const speed = Math.sin(inP * Math.PI) * (1 - outP) + Math.sin(outP * Math.PI);
+  return (
+    <AbsoluteFill
+      style={{
+        opacity: Math.min(1, inP * 1.6) * (1 - outP * outP),
+        transform: `translateX(${(1 - inP) * 1300 - outP * 1300}px) skewX(${-speed * 9}deg)`,
+        filter: speed > 0.02 ? `blur(${speed * 16}px)` : undefined,
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+
+// Words slam in one by one: drop, tilt and blur resolve on a tight stagger
+export const KineticWords: React.FC<{text: string; at: number; stagger?: number; style?: React.CSSProperties; wordStyle?: (i: number) => React.CSSProperties}> = ({text, at, stagger = 3, style, wordStyle}) => {
+  const frame = useCurrentFrame();
+  return (
+    <div style={{display: 'flex', flexWrap: 'wrap', gap: '0 0.26em', ...style}}>
+      {text.split(' ').map((w, i) => {
+        const p = interpolate(frame, [at + i * stagger, at + i * stagger + 9], [0, 1], {...clamp, easing: EASE.snap});
+        return (
+          <span key={i} style={{display: 'inline-block', opacity: Math.min(1, p * 2), transform: `translateY(${(1 - p) * 70}px) rotate(${(1 - p) * 8}deg) scale(${1.25 - 0.25 * p})`, filter: `blur(${(1 - Math.min(p, 1)) * 10}px)`, ...wordStyle?.(i)}}>
+            {w}
+          </span>
+        );
+      })}
+    </div>
+  );
 };
 
 // Rubber stamp: thuds in on the beat
@@ -115,12 +143,16 @@ export const Plate: React.FC<{src: string; x: number; y: number; w: number; h: n
 // Section heading in the drawing's annotation style
 export const Heading: React.FC<{n: string; title: string; zh: string; at?: number; x?: number; y?: number}> = ({n, title, zh, at = 4, x = 110, y = 110}) => {
   const frame = useCurrentFrame();
-  const p = interpolate(frame, [at, at + 14], [0, 1], {...clamp, easing: EASE.out});
+  const step = `STEP ${n}`;
+  const typed = step.slice(0, Math.floor(interpolate(frame, [at, at + 6], [0, step.length], clamp)));
+  const zhP = interpolate(frame, [at + 10, at + 20], [0, 1], {...clamp, easing: EASE.out});
+  const bar = interpolate(frame, [at + 2, at + 16], [0, 1], {...clamp, easing: EASE.out});
   return (
-    <div style={{position: 'absolute', left: x, top: y, opacity: p, transform: `translateY(${(1 - p) * 20}px)`}}>
-      <div style={{fontFamily: monoFamily, fontSize: 20, letterSpacing: '0.25em', color: RED}}>STEP {n}</div>
-      <div style={{fontSize: 64, fontWeight: 800, letterSpacing: '-0.035em', color: INK, marginTop: 6}}>{title}</div>
-      <div style={{fontSize: 30, fontWeight: 700, color: BLUE, marginTop: 4}}>{zh}</div>
+    <div style={{position: 'absolute', left: x, top: y}}>
+      <div style={{fontFamily: monoFamily, fontSize: 20, letterSpacing: '0.25em', color: RED, height: 26}}>{typed}</div>
+      <div style={{height: 4, width: 90 * bar, background: RED, marginTop: 6}} />
+      <KineticWords text={title} at={at + 3} style={{fontSize: 64, fontWeight: 800, letterSpacing: '-0.035em', color: INK, marginTop: 8}} />
+      <div style={{fontSize: 30, fontWeight: 700, color: BLUE, marginTop: 4, opacity: zhP, transform: `translateX(${(1 - zhP) * -40}px)`}}>{zh}</div>
     </div>
   );
 };

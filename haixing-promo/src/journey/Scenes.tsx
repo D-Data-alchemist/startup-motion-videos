@@ -2,7 +2,7 @@ import {AbsoluteFill, Img, interpolate, spring, useCurrentFrame, useVideoConfig}
 import {Sparks} from '../components/Sparks';
 import {BRAND, EASE, img, monoFamily} from '../theme';
 import {PartDrawing} from './Drawing';
-import {BLUE, clamp, Heading, INK, Plate, RED, Stamp} from './kit';
+import {BLUE, clamp, Heading, INK, KineticWords, Plate, RED, Stamp} from './kit';
 
 const handFamily = 'Architects Daughter';
 const fade = (frame: number, at: number, d = 14) => interpolate(frame, [at, at + d], [0, 1], {...clamp, easing: EASE.out});
@@ -16,7 +16,7 @@ export const Hook: React.FC = () => {
   return (
     <AbsoluteFill>
       {PAINS.map((p, i) => (
-        <div key={p} style={{position: 'absolute', left: 180, top: 230 + i * 150, display: 'flex', alignItems: 'center', gap: 40, opacity: fade(frame, PAIN_AT[i], 8)}}>
+        <div key={p} style={{position: 'absolute', left: 180, top: 230 + i * 150, display: 'flex', alignItems: 'center', gap: 40, opacity: fade(frame, PAIN_AT[i], 4), transform: `translateX(${(1 - fade(frame, PAIN_AT[i], 8)) * -500}px) skewX(${(1 - fade(frame, PAIN_AT[i], 8)) * 20}deg)`, filter: `blur(${(1 - fade(frame, PAIN_AT[i], 8)) * 14}px)`}}>
           <div style={{position: 'relative', fontSize: 84, fontWeight: 800, letterSpacing: '-0.04em', color: INK}}>
             {p}
             <div style={{position: 'absolute', left: -10, top: '52%', height: 8, width: `${strike * 104}%`, background: RED, borderRadius: 4, transform: 'rotate(-1.5deg)'}} />
@@ -26,9 +26,7 @@ export const Hook: React.FC = () => {
           </Stamp>
         </div>
       ))}
-      <div style={{position: 'absolute', left: 180, top: 720, fontFamily: handFamily, fontSize: 64, color: RED, transform: 'rotate(-2deg)', opacity: fade(frame, 112, 10)}}>
-        Don’t take our word for it. Watch. →
-      </div>
+      <KineticWords text="Don’t take our word for it. Watch. →" at={112} stagger={2} style={{position: 'absolute', left: 180, top: 720, fontFamily: handFamily, fontSize: 64, color: RED, transform: 'rotate(-2deg)'}} />
     </AbsoluteFill>
   );
 };
@@ -156,16 +154,14 @@ export const Sample: React.FC = () => {
   const hero = spring({frame: frame - 2, fps, config: {damping: 15, stiffness: 110}});
   return (
     <AbsoluteFill style={{alignItems: 'center'}}>
-      <Img src={img('flange-shaft.png')} style={{position: 'absolute', top: 170, height: 640, transform: `scale(${0.9 + 0.1 * hero}) rotate(${(1 - hero) * 8}deg)`, filter: 'drop-shadow(0 34px 40px rgba(20,40,75,0.35))'}} />
+      <Img src={img('flange-shaft.png')} style={{position: 'absolute', top: 170, height: 640, transform: `translateY(${(1 - hero) * -500}px) scale(${(0.6 + 0.4 * hero) * (1 + 0.06 * Math.exp(-Math.max(0, frame - SAMPLE_STAMP) / 4) * (frame >= SAMPLE_STAMP ? 1 : 0))}) rotate(${(1 - hero) * 40}deg)`, filter: 'drop-shadow(0 34px 40px rgba(20,40,75,0.35))'}} />
       <div style={{position: 'absolute', top: 400, left: 1080}}>
         <Stamp at={SAMPLE_STAMP} size={64} rotate={-9}>
           Sample ready
         </Stamp>
       </div>
       <div style={{position: 'absolute', top: 860, width: '100%', textAlign: 'center', opacity: fade(frame, 48)}}>
-        <div style={{fontSize: 64, fontWeight: 800, letterSpacing: '-0.035em', color: INK}}>
-          Drawing to sample in <span style={{color: RED}}>under 24 hours.</span>
-        </div>
+        <KineticWords text="Drawing to sample in under 24 hours." at={44} style={{justifyContent: 'center', fontSize: 64, fontWeight: 800, letterSpacing: '-0.035em', color: INK}} wordStyle={(i) => (i >= 4 ? {color: RED} : {})} />
         <div style={{fontSize: 30, fontWeight: 700, color: BLUE, marginTop: 8}}>新品快速打样 · 24小时内出样</div>
       </div>
     </AbsoluteFill>
@@ -179,18 +175,19 @@ export const Batch: React.FC = () => {
   const pass = Math.round(interpolate(frame, [70, 110], [0, 99], {...clamp, easing: EASE.out}));
   return (
     <AbsoluteFill>
-      <div style={{position: 'absolute', left: 110, top: 100, opacity: fade(frame, 4)}}>
-        <div style={{fontSize: 72, fontWeight: 800, letterSpacing: '-0.04em', color: INK}}>Then batch after batch.</div>
-        <div style={{fontSize: 72, fontWeight: 800, letterSpacing: '-0.04em', color: BLUE}}>Identical.</div>
+      <div style={{position: 'absolute', left: 110, top: 100}}>
+        <KineticWords text="Then batch after batch." at={2} style={{fontSize: 72, fontWeight: 800, letterSpacing: '-0.04em', color: INK}} />
+        <KineticWords text="Identical." at={16} style={{fontSize: 72, fontWeight: 800, letterSpacing: '-0.04em', color: BLUE}} />
       </div>
       <div style={{position: 'absolute', left: 120, right: 120, top: 380, display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', rowGap: 10}}>
         {Array.from({length: 24}, (_, i) => {
           const p = spring({frame: frame - (14 + (i % 12) * 2 + Math.floor(i / 12) * 6), fps, config: {damping: 14, stiffness: 160}});
-          return <Img key={i} src={img('flange-shaft.png')} style={{height: 230, justifySelf: 'center', transform: `scale(${p}) translateY(${(1 - Math.min(p, 1)) * 40}px)`, filter: 'drop-shadow(0 12px 12px rgba(20,40,75,0.25))'}} />;
+          const wave = Math.sin((frame - i * 2.5) / 5) * 10 * Math.min(1, Math.max(0, (frame - 60) / 20));
+          return <Img key={i} src={img('flange-shaft.png')} style={{height: 230, justifySelf: 'center', transform: `translateY(${(1 - Math.min(p, 1)) * -420 + wave}px) rotate(${(1 - Math.min(p, 1)) * (i % 2 ? 30 : -30)}deg) scale(${p})`, filter: 'drop-shadow(0 12px 12px rgba(20,40,75,0.25))'}} />;
         })}
       </div>
       <div style={{position: 'absolute', left: 120, top: 900, display: 'flex', alignItems: 'baseline', gap: 26, opacity: fade(frame, 66)}}>
-        <span style={{fontSize: 110, fontWeight: 800, letterSpacing: '-0.04em', color: RED, fontVariantNumeric: 'tabular-nums'}}>{pass}%+</span>
+        <span style={{display: 'inline-block', fontSize: 110, fontWeight: 800, letterSpacing: '-0.04em', color: RED, fontVariantNumeric: 'tabular-nums', transform: `scale(${1 + (pass >= 99 ? 0.12 * Math.exp(-Math.max(0, frame - 110) / 4) : 0)})`, transformOrigin: 'left bottom'}}>{pass}%+</span>
         <span style={{fontSize: 32, color: INK}}>stable pass rate · small-to-medium batches · 中小批量</span>
       </div>
     </AbsoluteFill>
@@ -210,16 +207,16 @@ export const Range: React.FC = () => {
   const {fps} = useVideoConfig();
   return (
     <AbsoluteFill>
-      <div style={{position: 'absolute', left: 110, top: 80, opacity: fade(frame, 2)}}>
-        <span style={{fontSize: 72, fontWeight: 800, letterSpacing: '-0.04em', color: INK}}>Not just shafts.</span>
-        <span style={{fontFamily: handFamily, fontSize: 46, color: RED, marginLeft: 30}}>steel · stainless · aluminum · copper · titanium</span>
+      <div style={{position: 'absolute', left: 110, top: 80, display: 'flex', alignItems: 'baseline', gap: 30}}>
+        <KineticWords text="Not just shafts." at={2} style={{fontSize: 72, fontWeight: 800, letterSpacing: '-0.04em', color: INK}} />
+        <span style={{fontFamily: handFamily, fontSize: 46, color: RED, opacity: fade(frame, 14), transform: `translateX(${(1 - fade(frame, 14)) * 60}px)`}}>steel · stainless · aluminum · copper · titanium</span>
       </div>
       <div style={{position: 'absolute', left: 110, right: 110, top: 230, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 22}}>
         {CARDS.map(([f, en, zh], i) => {
           const p = spring({frame: frame - CARD_AT(i), fps, config: {damping: 12, stiffness: 190}});
           const rot = ((i * 47) % 7) - 3;
           return (
-            <div key={f} style={{height: 360, background: '#fff', boxShadow: '0 16px 34px rgba(20,40,75,0.16)', border: `1px solid rgba(20,40,75,0.12)`, transform: `rotate(${rot}deg) scale(${1.6 - 0.6 * Math.min(p, 1)})`, opacity: Math.min(1, p * 2), position: 'relative'}}>
+            <div key={f} style={{height: 360, background: '#fff', boxShadow: '0 16px 34px rgba(20,40,75,0.16)', border: `1px solid rgba(20,40,75,0.12)`, transform: `translate(${(1 - Math.min(p, 1)) * [900, 0, -900, 0][i % 4]}px, ${(1 - Math.min(p, 1)) * [0, -700, 0, 700][i % 4]}px) rotate(${rot + (1 - Math.min(p, 1)) * (i % 2 ? 45 : -45)}deg) scale(${1.3 - 0.3 * Math.min(p, 1)})`, opacity: Math.min(1, p * 3), position: 'relative'}}>
               <div style={{position: 'absolute', top: 10, left: 12, fontFamily: monoFamily, fontSize: 13, color: RED}}>HX-{String(i + 1).padStart(3, '0')}</div>
               <Img src={img(f)} style={{position: 'absolute', left: '50%', top: 40, height: 220, maxWidth: '84%', objectFit: 'contain', transform: 'translateX(-50%)'}} />
               <div style={{position: 'absolute', left: 14, bottom: 14, right: 14, borderTop: `2px solid ${INK}`, paddingTop: 8}}>
@@ -242,7 +239,7 @@ export const Proof: React.FC = () => {
     <AbsoluteFill>
       <div style={{position: 'absolute', left: 110, top: 110, width: 900, opacity: fade(frame, 4)}}>
         <div style={{fontFamily: monoFamily, fontSize: 20, letterSpacing: '0.25em', color: RED}}>CASE · 合作案例</div>
-        <div style={{fontSize: 60, fontWeight: 800, letterSpacing: '-0.035em', color: INK, marginTop: 10, lineHeight: 1.1}}>A local automation-equipment maker.</div>
+        <KineticWords text="A local automation-equipment maker." at={4} style={{fontSize: 60, fontWeight: 800, letterSpacing: '-0.035em', color: INK, marginTop: 10, lineHeight: 1.1}} />
         <div style={{fontSize: 30, color: INK, marginTop: 24, lineHeight: 1.5, opacity: fade(frame, 18)}}>
           Spindles, connecting shafts, bushings, flanges.
           <br />
@@ -282,10 +279,9 @@ export const CTA: React.FC = () => {
             <div style={{fontSize: 30, fontWeight: 700, color: BLUE, letterSpacing: '0.08em', marginTop: 6}}>{BRAND.zh}</div>
           </div>
         </div>
-        <div style={{fontSize: 46, fontWeight: 800, letterSpacing: '-0.03em', color: INK, marginTop: 50, lineHeight: 1.15, opacity: fade(frame, 20)}}>
-          Send your drawing.
-          <br />
-          <span style={{color: RED}}>Get your sample in 24 h.</span>
+        <div style={{marginTop: 50}}>
+          <KineticWords text="Send your drawing." at={20} style={{fontSize: 46, fontWeight: 800, letterSpacing: '-0.03em', color: INK}} />
+          <KineticWords text="Get your sample in 24 h." at={30} style={{fontSize: 46, fontWeight: 800, letterSpacing: '-0.03em', color: RED}} />
         </div>
         <div style={{marginTop: 34, fontFamily: monoFamily, fontSize: 22, color: INK, lineHeight: 1.7, opacity: fade(frame, 36)}}>
           TEL +86 {BRAND.phone} · {BRAND.contact}

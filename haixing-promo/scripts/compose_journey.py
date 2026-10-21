@@ -267,6 +267,10 @@ for bar, t0 in enumerate(np.arange(0, DUR - 2.0, 2.0)):
         for s, st in enumerate(np.arange(t0, t0 + 2.0, 0.25)):
             place(music, pluck(notes[OST[s % 8]] + 12, bright=0.6), st, 0.05, pan=0.4 * np.sin(s), verb=0.5)
 
+# Whip-pan whooshes on every sheet change
+for k in ('drawing', 'program', 'turning', 'inspect', 'sample', 'batch', 'range', 'proof', 'cta'):
+    place(sfx, whoosh(0.45), T[k] - 0.1, 0.07, pan=0.5, verb=0.2)
+
 # 1 · Hook: sub pulse + stamps on each pain, pen strike, "Watch"
 for bt in np.arange(0, T['drawing'], 1.0):
     place(drums, fft_filter(kick(0), hi=140), bt, 0.2)
