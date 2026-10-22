@@ -20,8 +20,10 @@ export const HookScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{opacity: 1 - exit}}>
-      <div style={{position: 'absolute', top: 110, width: '100%', textAlign: 'center', fontFamily: displayFamily, fontSize: 30, letterSpacing: '0.2em', color: COLORS.muted}}>YOUR E-SIGNATURE SUBSCRIPTION</div>
-      <div style={{position: 'absolute', top: 190, left: 210, right: 210, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 22}}>
+      <div style={{position: 'absolute', top: 60, width: '100%', textAlign: 'center', fontSize: 64, fontWeight: 800, letterSpacing: '-0.04em', color: COLORS.ink, opacity: interpolate(frame, [0, 6], [0, 1], clamp) * (1 - interpolate(frame, [HOOK.line - 6, HOOK.line], [0, 1], clamp)), transform: `scale(${1.15 - 0.15 * interpolate(frame, [0, 6], [0, 1], clamp)})`}}>
+        What does each signature <span style={{color: COLORS.navy}}>really cost you?</span>
+      </div>
+      <div style={{position: 'absolute', top: 200, left: 210, right: 210, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 22}}>
         {MONTHS.map((m, i) => {
           const p = spring({frame: frame - HOOK.charge(i), fps, config: {damping: 12, stiffness: 200}});
           const fall = crumble * (1 + (i % 3) * 0.3);
@@ -52,7 +54,7 @@ export const HookScene: React.FC = () => {
         })}
       </div>
       <div style={{position: 'absolute', top: 560, width: '100%', textAlign: 'center', fontSize: 26, color: COLORS.muted, opacity: shown ? 1 - crumble : 0}}>
-        6 monthly charges · <b style={{color: COLORS.red}}>{total} documents</b> signed
+        {shown} monthly charges · <b style={{color: COLORS.red}}>{total} documents</b> signed
       </div>
       <div style={{position: 'absolute', top: 660, width: '100%', textAlign: 'center', opacity: line, transform: `translateY(${(1 - line) * 30}px) scale(${1 + crumble * 0.05})`}}>
         <div style={{fontSize: 96, fontWeight: 800, letterSpacing: '-0.045em', color: COLORS.ink}}>

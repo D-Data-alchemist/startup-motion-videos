@@ -10,9 +10,13 @@ Code-generated marketing videos built with [Remotion](https://www.remotion.dev/)
 | [`sellio-promo/`](sellio-promo) | 15s spec promo | Matched to sellio.chat: 3 AM message chaos → the AI agent answers with a cited source, then hands off to a human |
 | [`talanoa-promo/`](talanoa-promo) | 15s spec promo | Matched to talanoa.email: a cluttered email thread dissolves into chat bubbles, then email → Todo and local-only privacy |
 | [`signwith-promo/`](signwith-promo) | 15s spec promo | Matched to signwith.co: months of subscription charges vs. 6 docs signed, then upload → sign on a phone → pay per doc |
+| [`pasta-promo/`](pasta-promo) | 15s spec promo | Matched to pppasta.com: phone-between-sets hook → "Thirty minutes, upper body, dumbbells only." → hands-free Dynamic Island coaching |
+| [`navige-promo/`](navige-promo) | 15s spec promo | Matched to navige.ai: a runaway agent-spend counter → routing, caching and loop guards cut the bill, same output |
+| [`inferock-promo/`](inferock-promo) | 15s spec promo | Matched to inferock.ai: "Your LLM call failed. Who pays?" → per-call receipts and service credits for eligible failures |
+| [`emochi-promo/`](emochi-promo) | 15s spec promo | Matched to Emochi by Kente Labs: blank-page hook → voice journal, editable transcript, and Mochi changing shape and colour with your day |
 | [`haixing-promo/`](haixing-promo) | 3 × 45–50s brand films | CNC precision manufacturer: **"The 24-Hour Part"** demonstration film, a light reference-style edit, and a dark cinematic cut |
 
-1080p renders are in [`showcase/`](showcase).
+1080p renders are in [`showcase/`](showcase). Studio logo: [`brand/`](brand).
 
 ## Run any project
 

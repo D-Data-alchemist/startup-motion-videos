@@ -19,14 +19,20 @@ export const HookScene: React.FC = () => {
   const exit = interpolate(frame, [96, 110], [0, 1], {...clamp, easing: EASE.in});
   const shrink = interpolate(frame, [HOOK.miss - 4, HOOK.miss + 10], [0, 1], {...clamp, easing: EASE.inOut});
 
+  const hookIn = interpolate(frame, [0, 6], [0, 1], {...clamp, easing: EASE.out});
+  const hookOut = interpolate(frame, [HOOK.miss - 8, HOOK.miss], [0, 1], clamp);
   return (
     <AbsoluteFill style={{opacity: 1 - exit, filter: `blur(${exit * 12}px)`}}>
+      {/* Hook line — on screen from the first frame */}
+      <div style={{position: 'absolute', top: 54, width: '100%', textAlign: 'center', fontSize: 68, fontWeight: 800, letterSpacing: '-0.04em', color: COLORS.ink, opacity: hookIn * (1 - hookOut), transform: `scale(${1.15 - 0.15 * hookIn})`}}>
+        Is AI recommending your <span style={{color: COLORS.red}}>competitors?</span>
+      </div>
       {/* AI chat card */}
       <div
         style={{
           position: 'absolute',
           left: '50%',
-          top: 170,
+          top: 190,
           width: 980,
           marginLeft: -490,
           padding: '34px 40px',

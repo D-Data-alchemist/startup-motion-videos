@@ -4,7 +4,7 @@ import {Avatar, COLORS, EASE, serifFamily} from '../theme';
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
 // Beats (local frames) — mirrored in scripts/compose_soundtrack.py
-export const HOOK = {title: 4, line2: 30, strip: [56, 82], bubbles: [70, 80, 90], punch: 96};
+export const HOOK = {title: 0, line2: 24, strip: [56, 82], bubbles: [70, 80, 90], punch: 96};
 
 // The old-fashioned thread: real words buried under quotes, signatures and disclaimers
 const THREAD: {t: string; keep?: number; quote?: number}[] = [
@@ -28,7 +28,7 @@ const BUBBLES = [
 export const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const title = interpolate(frame, [HOOK.title, HOOK.title + 14], [0, 1], {...clamp, easing: EASE.out});
+  const title = interpolate(frame, [HOOK.title, HOOK.title + 6], [0, 1], {...clamp, easing: EASE.out});
   const line2 = interpolate(frame, [HOOK.line2, HOOK.line2 + 14], [0, 1], {...clamp, easing: EASE.out});
   const card = spring({frame: frame - 6, fps, config: {damping: 18}});
   const strip = interpolate(frame, HOOK.strip, [0, 1], {...clamp, easing: EASE.inOut});

@@ -4,7 +4,7 @@ import {ChannelBadge, Channel, COLORS, EASE, Icon, monoFamily} from '../theme';
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
 // Beats (local frames) — mirrored in scripts/compose_soundtrack.py
-export const HOOK = {pop: (i: number) => 6 + i * 5, line1: 18, line2: 56, suck: [82, 100], icon: 86};
+export const HOOK = {pop: (i: number) => 6 + i * 5, line1: 0, line2: 50, suck: [82, 100], icon: 86};
 const PINGS: {ch: Channel; msg: string; x: number; y: number}[] = [
   {ch: 'whatsapp', msg: 'Is this still in stock?', x: 360, y: 190},
   {ch: 'instagram', msg: 'Do you ship to Lagos?', x: 1520, y: 170},
@@ -23,7 +23,7 @@ export const HookScene: React.FC = () => {
   const {fps} = useVideoConfig();
   const suck = interpolate(frame, HOOK.suck, [0, 1], {...clamp, easing: EASE.in});
   const icon = spring({frame: frame - HOOK.icon, fps, config: {damping: 11, stiffness: 160}});
-  const t = (at: number) => interpolate(frame, [at, at + 10], [0, 1], {...clamp, easing: EASE.out});
+  const t = (at: number) => interpolate(frame, [at, at + 6], [0, 1], {...clamp, easing: EASE.out});
   const count = Math.min(99, Math.round(interpolate(frame, [6, 80], [0, 47], clamp)));
 
   return (
