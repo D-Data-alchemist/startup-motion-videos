@@ -8,6 +8,7 @@ Code-generated marketing videos built with [Remotion](https://www.remotion.dev/)
 | [`drivestream-pro-promo/`](drivestream-pro-promo) | 15s promo | Matched to drivestream.pro: library → program → 24/7 live channel |
 | [`gazerank-promo/`](gazerank-promo) | 15s spec promo | Matched to gazerank.com: an AI-search hook, then a live scan with the score climbing from 72 to 89 |
 | [`sellio-promo/`](sellio-promo) | 15s spec promo | Matched to sellio.chat: 3 AM message chaos → the AI agent answers with a cited source, then hands off to a human |
+| [`talanoa-promo/`](talanoa-promo) | 15s spec promo | Matched to talanoa.email: a cluttered email thread dissolves into chat bubbles, then email → Todo and local-only privacy |
 | [`haixing-promo/`](haixing-promo) | 3 × 45–50s brand films | CNC precision manufacturer: **"The 24-Hour Part"** demonstration film, a light reference-style edit, and a dark cinematic cut |
 
 1080p renders are in [`showcase/`](showcase).
