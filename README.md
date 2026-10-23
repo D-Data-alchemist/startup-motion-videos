@@ -14,6 +14,10 @@ Code-generated marketing videos built with [Remotion](https://www.remotion.dev/)
 | [`navige-promo/`](navige-promo) | 15s spec promo | Matched to navige.ai: a runaway agent-spend counter → routing, caching and loop guards cut the bill, same output |
 | [`inferock-promo/`](inferock-promo) | 15s spec promo | Matched to inferock.ai: "Your LLM call failed. Who pays?" → per-call receipts and service credits for eligible failures |
 | [`emochi-promo/`](emochi-promo) | 15s spec promo | Matched to Emochi by Kente Labs: blank-page hook → voice journal, editable transcript, and Mochi changing shape and colour with your day |
+| [`pomerado-promo/`](pomerado-promo) | 15s spec promo | Matched to pomerado.ai: their benchmark as a split-screen race ("$41.01 vs 3¢") → website-to-tool, self-healing integrations |
+| [`tiden-promo/`](tiden-promo) | 15s spec promo | Matched to tiden.ai: "Tests pass." gets struck through → captured intent, a refused close gate, every promise proven |
+| [`walkai-promo/`](walkai-promo) | 15s spec promo | Matched to walkai-talkai.com: "Fix bugs with a walkie-talkie." → the full radio loop, with the real VOX tones and roger beep |
+| [`beam-promo/`](beam-promo) | 15s spec promo | Matched to beam.win: a window flies from a Mac mini to a MacBook → Dock icon, ⌘Tab, several Macs at once |
 | [`haixing-promo/`](haixing-promo) | 3 × 45–50s brand films | CNC precision manufacturer: **"The 24-Hour Part"** demonstration film, a light reference-style edit, and a dark cinematic cut |
 
 1080p renders are in [`showcase/`](showcase). Studio logo: [`brand/`](brand).
