@@ -6,6 +6,12 @@ An unsolicited spec piece for [walkai-talkai.com](https://walkai-talkai.com). It
 
 **Hook (bold claim + object in frame):** frame 0 shows "Fix bugs with a walkie-talkie." next to the radio. PTT at 0.7s, "Fix the buy button. Over.", then by 3s the agent answers over the radio.
 
+**Motion:** built with `src/components/Kinetic.tsx`, a toolkit distilled from frame-by-frame study of top launch films (Linear, Framer, Claude, Bolt, Notion, Superhuman):
+- A camera follows the action with whip-and-hold moves, 3D tilt and velocity-based motion blur.
+- Scenes change by zooming through with blur instead of crossfading.
+- Captions are revealed word by word from masks, and cards make 3D entrances.
+- Floating interface shards add depth of field, and impacts get a camera punch.
+
 | Time | Scene | What happens |
 |---|---|---|
 | 0–3.6s | Hook | The radio transmits, VOX tones play, then "Fixed. Ready to ship. Over." + ROGER |

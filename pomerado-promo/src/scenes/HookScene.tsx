@@ -1,4 +1,5 @@
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Camera, punches, Rise, Shards} from '../components/Kinetic';
 import {COLORS, EASE, mono} from '../theme';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -45,7 +46,9 @@ export const HookScene: React.FC = () => {
   const line2 = spring({frame: frame - HOOK.line2, fps, config: {damping: 14, stiffness: 180}});
   const exit = interpolate(frame, [98, 110], [0, 1], clamp);
   return (
-    <AbsoluteFill style={{opacity: 1 - exit, color: COLORS.ink}}>
+    <AbsoluteFill style={{opacity: 1 - exit, transform: `scale(${1 + exit * 0.4})`, filter: exit > 0.02 ? `blur(${exit * 20}px)` : undefined, color: COLORS.ink}}>
+      <Shards color={COLORS.coral} tint="#FFFFFF" opacity={0.35} count={10} />
+      <Camera keys={[{f: 0, x: 960, y: 540, s: 1.0}, {f: HOOK.pomDone, x: 1180, y: 560, s: 1.06, ry: -2}, {f: HOOK.agentDone, x: 760, y: 560, s: 1.06, ry: 2}, {f: 110, x: 960, y: 600, s: 1.03}]} shake={punches(frame, [HOOK.pomDone, HOOK.agentDone], 4) * 7}>
       <div style={{position: 'absolute', top: 70, width: '100%', textAlign: 'center', fontSize: 30, color: COLORS.body}}>Same task: onboard 2 new employees across HR, IT, courses and library</div>
       <div style={{position: 'absolute', top: 120, width: '100%', textAlign: 'center', fontSize: 190, fontWeight: 700, letterSpacing: '-0.05em', lineHeight: 1, transform: `scale(${settle})`}}>
         <span style={{color: '#9AA3AF', textDecoration: frame >= HOOK.agentDone ? 'line-through' : 'none', textDecorationThickness: 12}}>$41.01</span> vs <span style={{color: COLORS.brand}}>3¢</span>
@@ -54,9 +57,10 @@ export const HookScene: React.FC = () => {
         <Lane name="Browser agent" sub="Codex Computer Use" secs={agent * 1282} cost={`$${(agent * 41.01).toFixed(2)}`} done={frame >= HOOK.agentDone} progress={agent} pop={agentPop} />
         <Lane name="Pomerado" sub="Deterministic API" secs={pom * 496} cost={`$${(pom * 0.03).toFixed(2)}`} done={frame >= HOOK.pomDone} brand progress={pom} pop={pomPop} />
       </div>
-      <div style={{position: 'absolute', top: 880, width: '100%', textAlign: 'center', fontSize: 64, fontWeight: 700, letterSpacing: '-0.03em', opacity: Math.min(1, line2), transform: `translateY(${(1 - Math.min(1, line2)) * 24}px)`}}>
-        No browser. <span style={{color: COLORS.brand}}>Just an API.</span>
+      <div style={{position: 'absolute', top: 880, width: '100%', textAlign: 'center', fontSize: 64, fontWeight: 700, letterSpacing: '-0.03em', }}>
+        <Rise text="No browser. Just an API." at={HOOK.line2} accent={['Just', 'an', 'API']} accentColor={COLORS.brand} />
       </div>
+      </Camera>
       <div style={{position: 'absolute', bottom: 40, right: 120, fontSize: 18, color: COLORS.body, fontFamily: mono}}>pomerado.ai benchmark · shown at 321× speed</div>
     </AbsoluteFill>
   );

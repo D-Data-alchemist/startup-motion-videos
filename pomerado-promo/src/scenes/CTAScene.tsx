@@ -1,4 +1,5 @@
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Rise, useZoomThrough} from '../components/Kinetic';
 import {BRAND, COLORS, EASE, Logo, mono} from '../theme';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -19,12 +20,12 @@ export const CTAScene: React.FC = () => {
   const local = (frame - 10) - idx * ROTATE_AT;
   const swap = idx < ROTATE.length - 1 ? interpolate(local, [ROTATE_AT - 5, ROTATE_AT], [0, 1], clamp) : 0;
   return (
-    <AbsoluteFill style={{padding: '0 140px', justifyContent: 'center', color: COLORS.ink}}>
+    <AbsoluteFill style={{padding: '0 140px', justifyContent: 'center', color: COLORS.ink, ...useZoomThrough(150, 12, 0)}}>
       <div style={{position: 'absolute', left: 140, top: 90, opacity: logo}}>
         <Logo size={56} />
       </div>
       <div style={{fontSize: 130, fontWeight: 600, letterSpacing: '-0.045em', lineHeight: 1.02}}>
-        <div style={{opacity: a, transform: `translateY(${(1 - a) * 30}px)`}}>Connect agents to</div>
+        <div><Rise text="Connect agents to" at={6} stagger={3} /></div>
         <div style={{height: 140, overflow: 'hidden', opacity: a}}>
           <div style={{color: COLORS.brand, transform: `translateY(${-swap * 140}px)`}}>
             <div>{ROTATE[idx]}</div>

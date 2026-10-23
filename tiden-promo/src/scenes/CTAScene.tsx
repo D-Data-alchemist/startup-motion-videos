@@ -1,4 +1,5 @@
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Rise, useZoomThrough} from '../components/Kinetic';
 import {BRAND, COLORS, display, EASE, Logo, Mark} from '../theme';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -15,7 +16,7 @@ export const CTAScene: React.FC = () => {
   const press = interpolate(frame, [CTA_PRESS - 4, CTA_PRESS, CTA_PRESS + 6], [0, 1, 0], clamp);
   const wave = spring({frame: frame - 4, fps, config: {damping: 16, stiffness: 90}});
   return (
-    <AbsoluteFill style={{padding: '0 140px', justifyContent: 'center', color: COLORS.ink}}>
+    <AbsoluteFill style={{padding: '0 140px', justifyContent: 'center', color: COLORS.ink, ...useZoomThrough(150, 12, 0)}}>
       <div style={{position: 'absolute', right: -120, top: 120, opacity: 0.12 * wave, transform: `rotate(${(1 - wave) * -40 + frame * 0.08}deg) scale(${0.8 + 0.2 * wave})`}}>
         <Mark size={900} id="cta-wave" />
       </div>
@@ -23,10 +24,8 @@ export const CTAScene: React.FC = () => {
         <Logo size={56} />
       </div>
       <div style={{fontFamily: display, fontSize: 138, fontWeight: 400, letterSpacing: '-0.045em', lineHeight: 1.02}}>
-        <div style={{opacity: a, transform: `translateY(${(1 - a) * 30}px)`}}>
-          Intent <span style={{color: COLORS.blue}}>verification</span>
-        </div>
-        <div style={{opacity: b, transform: `translateY(${(1 - b) * 30}px)`}}>for coding agents</div>
+        <div><Rise text="Intent verification" at={8} stagger={4} accent={['verification']} accentColor={COLORS.blue} /></div>
+        <div><Rise text="for coding agents" at={18} stagger={4} /></div>
       </div>
       <div style={{fontSize: 32, color: COLORS.muted, marginTop: 30, opacity: sub, maxWidth: 1200, lineHeight: 1.4}}>{BRAND.sub}</div>
       <div style={{display: 'flex', alignItems: 'center', gap: 26, marginTop: 44, opacity: Math.min(1, btn), transform: `translateY(${(1 - Math.min(btn, 1)) * 30}px)`}}>

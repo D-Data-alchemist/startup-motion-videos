@@ -1,5 +1,6 @@
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Win} from '../components/Window';
+import {Camera, kick, Rise, useZoomThrough} from '../components/Kinetic';
 import {COLORS, display, EASE, Logo} from '../theme';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -7,18 +8,32 @@ const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 // Beats (local frames) — mirrored in scripts/compose_soundtrack.py
 export const APP = {picker: 4, pick: 26, fly1: [30, 52], dock: 54, cmdTab: [66, 92], fly2: [96, 118], resize: [128, 150], file: [160, 182], lock: 186};
 const CAPTIONS = [
-  {at: 0, text: <>A window, <span style={{color: COLORS.mint}}>not a video feed.</span></>},
-  {at: APP.dock, text: <>Its own Dock icon. A place in <span style={{color: COLORS.mint}}>⌘Tab.</span></>},
-  {at: APP.fly2[0], text: <>Beam <span style={{color: COLORS.kitchen}}>several</span> at once.</>},
-  {at: APP.file[0], text: <>Private by architecture. <span style={{color: COLORS.mint}}>We never see them.</span></>},
+  {at: 0, text: 'A window, not a video feed.', accent: ['not', 'a', 'video', 'feed'], color: COLORS.mint},
+  {at: APP.dock, text: 'Its own Dock icon. A place in ⌘Tab.', accent: ['⌘Tab'], color: COLORS.mint},
+  {at: APP.fly2[0], text: 'Beam several at once.', accent: ['several'], color: COLORS.kitchen},
+  {at: APP.file[0], text: 'Private by architecture. We never see them.', accent: ['We', 'never', 'see', 'them'], color: COLORS.mint},
+];
+// Camera follows each window: picker → first landing → ⌘Tab → second window → the file drop
+const CAM = [
+  {f: 0, x: 960, y: 620, s: 0.94, rx: 12},
+  {f: 10, x: 1400, y: 420, s: 1.22, rx: 2},
+  {f: APP.pick + 2, x: 1420, y: 420, s: 1.26},
+  {f: APP.fly1[1] - 4, x: 700, y: 520, s: 1.16},
+  {f: APP.cmdTab[0] - 2, x: 720, y: 540, s: 1.14},
+  {f: APP.cmdTab[0] + 6, x: 960, y: 600, s: 1.04},
+  {f: APP.fly2[0] + 4, x: 1000, y: 600, s: 1.02},
+  {f: APP.fly2[1] + 2, x: 1300, y: 580, s: 1.14, ry: -3},
+  {f: APP.resize[1], x: 1100, y: 580, s: 1.08},
+  {f: APP.file[1] - 2, x: 800, y: 620, s: 1.16, ry: 2},
+  {f: 210, x: 900, y: 600, s: 1.1, ry: 5, rx: 3},
 ];
 const CODE = ['❯ claude', '  ● Running 4 agents on Studio', '  ● build #212 · 1,284 tests', '  ✓ agents: 3 done, 1 working…'];
 
 export const AppScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const enter = spring({frame, fps, config: {damping: 200}, durationInFrames: 22});
-  const exit = interpolate(frame, [196, 210], [0, 1], {...clamp, easing: EASE.in});
+  const scene = useZoomThrough(210, 10, 12);
+  const enter = 1;
   const f = (at: number, d = 8) => interpolate(frame, [at, at + d], [0, 1], {...clamp, easing: EASE.out});
   const fly1 = interpolate(frame, APP.fly1, [0, 1], {...clamp, easing: EASE.inOut});
   const fly2 = interpolate(frame, APP.fly2, [0, 1], {...clamp, easing: EASE.inOut});
@@ -32,14 +47,8 @@ export const AppScene: React.FC = () => {
 
   // desktop is 1700×860 at (110, 170)
   return (
-    <AbsoluteFill style={{opacity: Math.min(1, enter * 1.3) * (1 - exit), color: COLORS.text}}>
-      {CAPTIONS.map((c, i) => {
-        const next = CAPTIONS[i + 1]?.at ?? 999;
-        const o = interpolate(frame, [c.at, c.at + 8, next - 5, next], [0, 1, 1, 0], clamp);
-        return (
-          <div key={i} style={{position: 'absolute', left: 110, top: 52, fontFamily: display, fontSize: 70, fontWeight: 600, letterSpacing: '-0.03em', opacity: o, transform: `translateY(${(1 - o) * 18}px)`}}>{c.text}</div>
-        );
-      })}
+    <AbsoluteFill style={{...scene, color: COLORS.text}}>
+      <Camera keys={CAM} shake={(kick(frame, APP.fly1[1], 4) + kick(frame, APP.fly2[1], 4)) * 6}>
       <div style={{position: 'absolute', left: 110, top: 170, width: 1700, height: 860, borderRadius: 26, overflow: 'hidden', background: 'linear-gradient(160deg,#173A2E 0%,#0C1A15 55%,#081310 100%)', boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 50px 120px rgba(0,0,0,0.6)', transform: `translateY(${(1 - enter) * 80}px)`}}>
         {/* menu bar */}
         <div style={{height: 34, display: 'flex', alignItems: 'center', gap: 22, padding: '0 20px', background: 'rgba(0,0,0,0.35)', fontSize: 15, color: '#E8ECEA'}}>
@@ -124,6 +133,16 @@ export const AppScene: React.FC = () => {
           <div style={{width: 62 * Math.min(1, dock2), height: 62, borderRadius: 15, background: 'linear-gradient(135deg,#3B2A55,#1B1B1D)', boxShadow: `0 0 0 3px ${COLORS.kitchen}`, transform: `scale(${Math.min(1, dock2)})`}} />
         </div>
       </div>
+      </Camera>
+      <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 190, background: `linear-gradient(${COLORS.bg} 50%, rgba(7,11,10,0))`}} />
+      {CAPTIONS.map((c, i) => {
+        const next = CAPTIONS[i + 1]?.at ?? 999;
+        return frame >= c.at && frame < next ? (
+          <div key={i} style={{position: 'absolute', left: 110, top: 48, fontFamily: display, fontSize: 72, fontWeight: 600, letterSpacing: '-0.03em', opacity: interpolate(frame, [next - 5, next], [1, 0], clamp)}}>
+            <Rise text={c.text} at={c.at} accent={c.accent} accentColor={c.color} />
+          </div>
+        ) : null;
+      })}
       <div style={{position: 'absolute', right: 110, top: 72}}>
         <Logo height={40} />
       </div>

@@ -1,4 +1,5 @@
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Camera, card3D, kick, Rise, useZoomThrough} from '../components/Kinetic';
 import {COLORS, display, EASE, Logo, mono} from '../theme';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -27,38 +28,40 @@ const PROMISES = [
   {t: 'Pro returns 429 above 600', proof: '1 test passed'},
 ];
 const CAPTIONS = [
-  {at: 0, text: <>Capture what you <b style={{color: COLORS.blue}}>asked for</b>.</>},
-  {at: APP.refused, text: <>Untested promise? <b style={{color: COLORS.red}}>The gate stays shut.</b></>},
-  {at: APP.ready, text: <>Every promise proven. <b style={{color: COLORS.teal}}>Merge is your call.</b></>},
+  {at: 0, text: 'Capture what you asked for.', accent: ['asked', 'for'], color: COLORS.blue},
+  {at: APP.refused, text: 'Untested promise? The gate stays shut.', accent: ['gate', 'stays', 'shut'], color: COLORS.red},
+  {at: APP.ready, text: 'Every promise proven. Merge is your call.', accent: ['Merge', 'is', 'your', 'call'], color: COLORS.teal},
+];
+// The camera follows the action: terminal → refused gate → the third promise → pull back for Merge
+const CAM = [
+  {f: 0, x: 960, y: 600, s: 0.94, rx: 14, ry: -6},
+  {f: 20, x: 900, y: 560, s: 1.0, rx: 4, ry: -3},
+  {f: APP.refused - 8, x: 880, y: 560, s: 1.03, rx: 2, ry: -2},
+  {f: APP.refused + 2, x: 600, y: 520, s: 1.3, rx: 0, ry: 0},
+  {f: APP.write + 16, x: 620, y: 540, s: 1.26},
+  {f: APP.pass3 - 6, x: 1460, y: 520, s: 1.3, ry: -4},
+  {f: APP.ready - 6, x: 1460, y: 530, s: 1.28, ry: -2},
+  {f: APP.ready + 4, x: 1180, y: 560, s: 1.06, ry: 3, rx: 3},
+  {f: 210, x: 1160, y: 560, s: 1.12, ry: 6, rx: 4},
 ];
 
 export const AppScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const enter = spring({frame, fps, config: {damping: 200}, durationInFrames: 22});
-  const exit = interpolate(frame, [196, 210], [0, 1], {...clamp, easing: EASE.in});
+  const scene = useZoomThrough(210, 10, 12);
   const f = (at: number, d = 8) => interpolate(frame, [at, at + d], [0, 1], {...clamp, easing: EASE.out});
   const shown = TERM.filter((l) => frame >= l.at);
   const scroll = Math.max(0, shown.length - 9) * 46;
-  const shake = frame >= APP.refused && frame < APP.refused + 10 ? Math.sin((frame - APP.refused) * 2.4) * (10 - (frame - APP.refused)) : 0;
+  const shake = kick(frame, APP.refused, 4) * 9;
   const ready = spring({frame: frame - APP.ready, fps, config: {damping: 12, stiffness: 180}});
   const merge = interpolate(frame, [APP.merge - 3, APP.merge, APP.merge + 6], [0, 1, 0], clamp);
 
   return (
-    <AbsoluteFill style={{opacity: Math.min(1, enter * 1.3) * (1 - exit), color: COLORS.text}}>
-      <div style={{position: 'absolute', left: 110, top: 64}}>
-        <Logo size={44} />
-      </div>
-      {CAPTIONS.map((c, i) => {
-        const next = CAPTIONS[i + 1]?.at ?? 999;
-        const o = interpolate(frame, [c.at, c.at + 8, next - 5, next], [0, 1, 1, 0], clamp);
-        return (
-          <div key={i} style={{position: 'absolute', left: 110, top: 150, fontFamily: display, fontSize: 62, fontWeight: 400, letterSpacing: '-0.03em', color: COLORS.ink, opacity: o, transform: `translateY(${(1 - o) * 20}px)`}}>{c.text}</div>
-        );
-      })}
+    <AbsoluteFill style={{...scene, color: COLORS.text}}>
+      <Camera keys={CAM} shake={shake}>
 
       {/* terminal */}
-      <div style={{position: 'absolute', left: 110, top: 290, width: 940, height: 600, borderRadius: 20, background: COLORS.term, boxShadow: '0 40px 90px rgba(22,26,28,0.25)', overflow: 'hidden', transform: `translateY(${(1 - enter) * 60}px) translateX(${shake}px)`}}>
+      <div style={{position: 'absolute', left: 110, top: 290, width: 940, height: 600, borderRadius: 20, background: COLORS.term, boxShadow: '0 40px 90px rgba(22,26,28,0.25)', overflow: 'hidden', ...card3D(frame, 0, 'left', 18)}}>
         <div style={{height: 46, display: 'flex', alignItems: 'center', gap: 8, padding: '0 20px', borderBottom: '1px solid rgba(255,255,255,0.08)'}}>
           {['#FF5F57', '#FEBC2E', '#28C840'].map((c) => <span key={c} style={{width: 12, height: 12, borderRadius: 6, background: c}} />)}
           <span style={{marginLeft: 16, fontFamily: mono, fontSize: 16, color: '#8A949C'}}>claude · ~/api</span>
@@ -73,7 +76,7 @@ export const AppScene: React.FC = () => {
       </div>
 
       {/* review card */}
-      <div style={{position: 'absolute', left: 1100, top: 290, width: 710, borderRadius: 20, background: COLORS.card, border: `1px solid ${COLORS.line}`, boxShadow: '0 30px 80px rgba(29,33,37,0.08)', padding: '26px 30px', transform: `translateY(${(1 - f(APP.promises[0], 14)) * 40}px)`, opacity: f(APP.promises[0], 10)}}>
+      <div style={{position: 'absolute', left: 1100, top: 290, width: 710, borderRadius: 20, background: COLORS.card, border: `1px solid ${COLORS.line}`, boxShadow: '0 30px 80px rgba(29,33,37,0.08)', padding: '26px 30px', ...card3D(frame, APP.promises[0] - 6, 'right', 18)}}>
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
           <div>
             <div style={{fontFamily: mono, fontSize: 15, color: COLORS.muted}}>intent/rate-limit-public-api</div>
@@ -99,6 +102,20 @@ export const AppScene: React.FC = () => {
           <div style={{padding: '16px 26px', borderRadius: 14, background: COLORS.ink, color: '#fff', fontSize: 20, fontWeight: 600, transform: `scale(${1 - merge * 0.06})`}}>Merge</div>
         </div>
       </div>
+      </Camera>
+      <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 250, background: `linear-gradient(${COLORS.bg} 55%, rgba(248,248,246,0))`}} />
+      <div style={{position: 'absolute', left: 110, top: 64}}>
+        <Logo size={44} />
+      </div>
+      {CAPTIONS.map((c, i) => {
+        const next = CAPTIONS[i + 1]?.at ?? 999;
+        const o = interpolate(frame, [next - 5, next], [1, 0], clamp);
+        return frame >= c.at && frame < next ? (
+          <div key={i} style={{position: 'absolute', left: 110, top: 140, fontFamily: display, fontSize: 66, fontWeight: 400, letterSpacing: '-0.03em', color: COLORS.ink, opacity: o}}>
+            <Rise text={c.text} at={c.at} accent={c.accent} accentColor={c.color} />
+          </div>
+        ) : null;
+      })}
     </AbsoluteFill>
   );
 };

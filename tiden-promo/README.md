@@ -6,6 +6,12 @@ An unsolicited spec piece for [tiden.ai](https://tiden.ai). It uses their wave m
 
 **Hook (contrarian):** frame 0 is the agent's claim, huge: ✓ "Tests pass." At 1s it gets struck through, then "But is it what you asked for?", and by 2.5s "1 of 3 promises has no test."
 
+**Motion:** built with `src/components/Kinetic.tsx`, a toolkit distilled from frame-by-frame study of top launch films (Linear, Framer, Claude, Bolt, Notion, Superhuman):
+- A camera follows the action with whip-and-hold moves, 3D tilt and velocity-based motion blur.
+- Scenes change by zooming through with blur instead of crossfading.
+- Captions are revealed word by word from masks, and cards make 3D entrances.
+- Floating interface shards add depth of field, and impacts get a camera punch.
+
 | Time | Scene | What happens |
 |---|---|---|
 | 0–3.6s | Hook | "Tests pass." is crossed out; three promises, one flagged red |

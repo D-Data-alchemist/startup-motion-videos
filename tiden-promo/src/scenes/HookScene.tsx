@@ -1,4 +1,5 @@
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Camera, punches, Rise, Shards} from '../components/Kinetic';
 import {COLORS, display, EASE, mono} from '../theme';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -18,7 +19,9 @@ export const HookScene: React.FC = () => {
   const exit = interpolate(frame, [98, 110], [0, 1], clamp);
   const shake = frame >= HOOK.crack && frame < HOOK.crack + 8 ? Math.sin((frame - HOOK.crack) * 3) * (8 - (frame - HOOK.crack)) : 0;
   return (
-    <AbsoluteFill style={{opacity: 1 - exit, color: COLORS.ink}}>
+    <AbsoluteFill style={{opacity: 1 - exit, transform: `scale(${1 + exit * 0.4})`, filter: exit > 0.02 ? `blur(${exit * 20}px)` : undefined, color: COLORS.ink}}>
+      <Shards color={COLORS.blueLit} tint="#FFFFFF" opacity={0.35} count={10} />
+      <Camera keys={[{f: 0, x: 960, y: 540, s: 1.0}, {f: HOOK.crack, x: 900, y: 420, s: 1.06}, {f: HOOK.question + 10, x: 960, y: 560, s: 1.0, rz: -0.6}, {f: 110, x: 980, y: 640, s: 1.06, rz: 0}]} shake={punches(frame, [HOOK.crack, HOOK.flag], 4) * 6}>
       <div style={{position: 'absolute', left: 140, top: 190, transform: `scale(${settle}) translateX(${shake}px)`, transformOrigin: 'left center'}}>
         <div style={{fontFamily: mono, fontSize: 30, color: COLORS.muted}}>● Edited api/public/v1/limiter.go</div>
         <div style={{fontFamily: display, fontSize: 210, fontWeight: 500, letterSpacing: '-0.05em', lineHeight: 1.05, marginTop: 10, position: 'relative', display: 'inline-block'}}>
@@ -26,8 +29,8 @@ export const HookScene: React.FC = () => {
           <div style={{position: 'absolute', left: 0, top: '54%', height: 14, width: `${crack * 100}%`, background: COLORS.red, borderRadius: 7}} />
         </div>
       </div>
-      <div style={{position: 'absolute', left: 140, top: 560, fontFamily: display, fontSize: 92, fontWeight: 500, letterSpacing: '-0.035em', opacity: Math.min(1, q), transform: `translateY(${(1 - Math.min(1, q)) * 30}px)`}}>
-        But is it what you <span style={{color: COLORS.blue}}>asked for?</span>
+      <div style={{position: 'absolute', left: 140, top: 560, fontFamily: display, fontSize: 92, fontWeight: 500, letterSpacing: '-0.035em', }}>
+        <Rise text="But is it what you asked for?" at={HOOK.question} accent={['asked', 'for']} accentColor={COLORS.blue} />
       </div>
       <div style={{position: 'absolute', left: 140, top: 740, display: 'flex', gap: 18}}>
         {P.map((t, i) => {
@@ -42,6 +45,7 @@ export const HookScene: React.FC = () => {
         })}
       </div>
       <div style={{position: 'absolute', left: 140, top: 880, fontFamily: mono, fontSize: 30, color: COLORS.red, opacity: Math.min(1, flag)}}>1 of 3 promises has no test.</div>
+      </Camera>
     </AbsoluteFill>
   );
 };

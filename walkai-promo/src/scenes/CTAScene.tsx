@@ -1,5 +1,6 @@
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Radio} from '../components/Radio';
+import {Rise, useZoomThrough} from '../components/Kinetic';
 import {BRAND, COLORS, EASE, Logo} from '../theme';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -16,7 +17,7 @@ export const CTAScene: React.FC = () => {
   const press = interpolate(frame, [CTA_PRESS - 4, CTA_PRESS, CTA_PRESS + 6], [0, 1, 0], clamp);
   const radio = spring({frame: frame - 4, fps, config: {damping: 14, stiffness: 90}});
   return (
-    <AbsoluteFill style={{padding: '0 140px', justifyContent: 'center', color: COLORS.text}}>
+    <AbsoluteFill style={{padding: '0 140px', justifyContent: 'center', color: COLORS.text, ...useZoomThrough(150, 12, 0)}}>
       <div style={{position: 'absolute', right: 200, top: 150, transform: `translateY(${(1 - radio) * 300}px) rotate(${6 - radio * 2}deg)`}}>
         <Radio scale={1.0} lcd="OVER." rx={frame > 30 && frame % 40 < 20} />
       </div>
@@ -24,8 +25,8 @@ export const CTAScene: React.FC = () => {
         <Logo size={56} />
       </div>
       <div style={{fontSize: 124, fontWeight: 600, letterSpacing: '-0.04em', lineHeight: 1.04}}>
-        <div style={{opacity: a, transform: `translateY(${(1 - a) * 30}px)`}}>{BRAND.headA}</div>
-        <div style={{color: COLORS.orange, opacity: Math.min(1, b * 2), transform: `scale(${1.15 - 0.15 * b})`, transformOrigin: 'left center'}}>{BRAND.headB}</div>
+        <div><Rise text={BRAND.headA} at={8} stagger={3} /></div>
+        <div><Rise text={BRAND.headB} at={20} stagger={4} color={COLORS.orange} /></div>
       </div>
       <div style={{fontSize: 32, color: COLORS.muted, marginTop: 26, opacity: sub}}>{BRAND.sub}</div>
       <div style={{display: 'flex', alignItems: 'center', gap: 26, marginTop: 44, opacity: Math.min(1, btn), transform: `translateY(${(1 - Math.min(btn, 1)) * 30}px)`}}>

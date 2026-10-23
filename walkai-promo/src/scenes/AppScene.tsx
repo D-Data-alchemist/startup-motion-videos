@@ -1,5 +1,6 @@
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Radio} from '../components/Radio';
+import {Camera, card3D, punches, Rise, useZoomThrough} from '../components/Kinetic';
 import {COLORS, EASE, mono} from '../theme';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -11,16 +12,28 @@ const STEP_AT = [APP.keyUp, APP.transcribe, APP.dispatch, APP.reply, APP.vox[0]]
 const ASK = 'Hey, the buy button doesn’t do anything when I click it. Can you take a look?';
 const ANSWER = 'Fixed. The buy button works again. Over.';
 const CAPTIONS = [
-  {at: 0, text: <>Press PTT. <b style={{color: COLORS.orange}}>Say what’s wrong.</b></>},
-  {at: APP.dispatch, text: <>Your Mac types it into <b style={{color: COLORS.orange}}>your agent.</b></>},
-  {at: APP.reply, text: <>The answer comes back <b style={{color: COLORS.green}}>over the radio.</b></>},
+  {at: 0, text: 'Press PTT. Say what’s wrong.', accent: ['Say', 'what’s', 'wrong'], color: COLORS.orange},
+  {at: APP.dispatch, text: 'Your Mac types it into your agent.', accent: ['your', 'agent'], color: COLORS.orange},
+  {at: APP.reply, text: 'The answer comes back over the radio.', accent: ['over', 'the', 'radio'], color: COLORS.green},
+];
+// Camera: radio while you talk → the agent while it types and works → back out for the broadcast
+const CAM = [
+  {f: 0, x: 900, y: 560, s: 0.94, rx: 10, ry: 8},
+  {f: 14, x: 600, y: 520, s: 1.12, rx: 2, ry: 3},
+  {f: APP.dispatch - 6, x: 620, y: 530, s: 1.14},
+  {f: APP.dispatch + 4, x: 1250, y: 560, s: 1.18, ry: -3},
+  {f: APP.reply - 6, x: 1260, y: 600, s: 1.22, ry: -2},
+  {f: APP.reply + 4, x: 1250, y: 680, s: 1.3},
+  {f: APP.vox[0] - 4, x: 1250, y: 680, s: 1.3},
+  {f: APP.vox[0] + 8, x: 960, y: 540, s: 1.0, ry: 4},
+  {f: 210, x: 940, y: 540, s: 1.06, ry: 6, rx: 3},
 ];
 
 export const AppScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const enter = spring({frame, fps, config: {damping: 200}, durationInFrames: 22});
-  const exit = interpolate(frame, [198, 210], [0, 1], {...clamp, easing: EASE.in});
+  const scene = useZoomThrough(210, 10, 12);
+  const enter = 1;
   const f = (at: number, d = 8) => interpolate(frame, [at, at + d], [0, 1], {...clamp, easing: EASE.out});
   const tx = frame < APP.transcribe;
   const rx = frame >= APP.vox[0];
@@ -32,35 +45,26 @@ export const AppScene: React.FC = () => {
   const spoken = Math.ceil(interpolate(frame, APP.speak, [0, ansWords.length], clamp));
 
   return (
-    <AbsoluteFill style={{opacity: Math.min(1, enter * 1.3) * (1 - exit), color: COLORS.text}}>
-      {/* the radio loop */}
-      <div style={{position: 'absolute', left: 700, top: 64, display: 'flex', gap: 12}}>
-        {STEPS.map((s, i) => (
-          <div key={s} style={{display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', borderRadius: 999, background: i === step ? COLORS.orange : i < step ? 'rgba(255,107,43,0.14)' : COLORS.panel, color: i === step ? '#fff' : i < step ? COLORS.orangeLit : COLORS.muted, fontSize: 19, fontWeight: 600}}>
-            <span style={{fontFamily: mono, fontSize: 15, opacity: 0.8}}>0{i + 1}</span>
-            {s}
-          </div>
-        ))}
-      </div>
-
-      <div style={{position: 'absolute', left: 230, top: 250, transform: `translateY(${(1 - enter) * 80}px) rotate(-4deg)`}}>
+    <AbsoluteFill style={{...scene, color: COLORS.text}}>
+      <Camera keys={CAM} shake={punches(frame, [APP.enter, APP.vox[0]], 4) * 6}>
+      <div style={{position: 'absolute', left: 230, top: 250, ...card3D(frame, 0, 'left', 18)}}>
         <Radio scale={0.95} tx={tx} rx={rx} lcd={tx ? 'TX ▮▮▮' : rx ? 'RX ▮▮▮' : '146.520'} ptt={tx ? 1 : 0} />
       </div>
       {/* what you said, from the radio */}
       {frame < APP.dispatch + 6 && (
-        <div style={{position: 'absolute', left: 60, top: 92, width: 560, padding: '16px 20px', borderRadius: 18, background: 'rgba(30,34,42,0.92)', border: `1px solid ${COLORS.line}`, fontSize: 24, lineHeight: 1.4, opacity: f(APP.words[0]) * (1 - f(APP.dispatch, 6))}}>
+        <div style={{position: 'absolute', left: 60, top: 150, width: 560, padding: '16px 20px', borderRadius: 18, background: 'rgba(30,34,42,0.92)', border: `1px solid ${COLORS.line}`, fontSize: 24, lineHeight: 1.4, opacity: f(APP.words[0]) * (1 - f(APP.dispatch, 6))}}>
           <span style={{color: COLORS.green}}>●</span> “{askWords.slice(0, said).join(' ')}”
         </div>
       )}
       {/* what the agent said back, out of the radio */}
       {rx && (
-        <div style={{position: 'absolute', left: 60, top: 92, width: 560, padding: '16px 20px', borderRadius: 18, background: 'rgba(255,107,43,0.14)', border: `1px solid rgba(255,107,43,0.35)`, fontSize: 26, lineHeight: 1.4, opacity: f(APP.speak[0])}}>
+        <div style={{position: 'absolute', left: 60, top: 150, width: 560, padding: '16px 20px', borderRadius: 18, background: 'rgba(255,107,43,0.14)', border: `1px solid rgba(255,107,43,0.35)`, fontSize: 26, lineHeight: 1.4, opacity: f(APP.speak[0])}}>
           <span style={{color: COLORS.orange}}>◀︎</span> “{ansWords.slice(0, spoken).join(' ')}” {frame >= APP.roger && <b style={{color: COLORS.orange, fontFamily: mono, fontSize: 20}}>ROGER ⟂</b>}
         </div>
       )}
 
       {/* the Mac: Station + agent */}
-      <div style={{position: 'absolute', left: 700, top: 150, width: 1110, height: 740, borderRadius: 22, background: COLORS.bg2, border: `1px solid ${COLORS.line}`, boxShadow: '0 50px 120px rgba(0,0,0,0.5)', overflow: 'hidden', transform: `translateY(${(1 - enter) * 60}px)`}}>
+      <div style={{position: 'absolute', left: 700, top: 150, width: 1110, height: 740, borderRadius: 22, background: COLORS.bg2, border: `1px solid ${COLORS.line}`, boxShadow: '0 50px 120px rgba(0,0,0,0.5)', overflow: 'hidden', ...card3D(frame, 4, 'right', 18)}}>
         <div style={{height: 44, display: 'flex', alignItems: 'center', gap: 8, padding: '0 18px', borderBottom: `1px solid ${COLORS.line}`}}>
           {['#FF5F57', '#FEBC2E', '#28C840'].map((c) => <span key={c} style={{width: 12, height: 12, borderRadius: 6, background: c}} />)}
           <span style={{marginLeft: 14, fontSize: 16, color: COLORS.muted}}>walkai-talkai — Station</span>
@@ -103,11 +107,26 @@ export const AppScene: React.FC = () => {
         </div>
       </div>
 
+      </Camera>
+      {/* screen-fixed supers: the loop steps on top, the caption at the bottom */}
+      <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 140, background: `linear-gradient(${COLORS.bg} 40%, rgba(7,8,11,0))`}} />
+      <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: 200, background: `linear-gradient(rgba(7,8,11,0), ${COLORS.bg} 60%)`}} />
+      <div style={{position: 'absolute', left: 0, right: 0, top: 40, display: 'flex', justifyContent: 'center', gap: 12}}>
+        {STEPS.map((s, i) => (
+          <div key={s} style={{display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', borderRadius: 999, background: i === step ? COLORS.orange : i < step ? 'rgba(255,107,43,0.14)' : COLORS.panel, color: i === step ? '#fff' : i < step ? COLORS.orangeLit : COLORS.muted, fontSize: 19, fontWeight: 600}}>
+            <span style={{fontFamily: mono, fontSize: 15, opacity: 0.8}}>0{i + 1}</span>
+            {s}
+          </div>
+        ))}
+      </div>
+
       {CAPTIONS.map((c, i) => {
         const next = CAPTIONS[i + 1]?.at ?? 999;
         const o = interpolate(frame, [c.at, c.at + 8, next - 5, next], [0, 1, 1, 0], clamp);
         return (
-          <div key={i} style={{position: 'absolute', left: 700, top: 920, fontSize: 52, fontWeight: 700, letterSpacing: '-0.03em', opacity: o, transform: `translateY(${(1 - o) * 18}px)`}}>{c.text}</div>
+          <div key={i} style={{position: 'absolute', left: 0, right: 0, textAlign: 'center', top: 935, fontSize: 56, fontWeight: 700, letterSpacing: '-0.03em', opacity: frame >= c.at && frame < next ? interpolate(frame, [next - 5, next], [1, 0], clamp) : 0}}>
+            {frame >= c.at && frame < next && <Rise text={c.text} at={c.at} accent={c.accent} accentColor={c.color} />}
+          </div>
         );
       })}
     </AbsoluteFill>

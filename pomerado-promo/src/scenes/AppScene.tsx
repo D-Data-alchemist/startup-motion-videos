@@ -1,4 +1,5 @@
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Camera, card3D, kick, Rise, useZoomThrough} from '../components/Kinetic';
 import {COLORS, EASE, Logo, mono} from '../theme';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -41,8 +42,19 @@ const ToolCard: React.FC<{title: string; site: string; status: React.ReactNode; 
 export const AppScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const enter = spring({frame, fps, config: {damping: 200}, durationInFrames: 22});
-  const exit = interpolate(frame, [196, 210], [0, 1], {...clamp, easing: EASE.in});
+  const scene = useZoomThrough(210, 10, 12);
+  const enter = 1;
+  const CAM = [
+    {f: 0, x: 1100, y: 560, s: 0.94, ry: -12, rx: 6},
+    {f: 18, x: 1000, y: 540, s: 1.0, ry: -3},
+    {f: APP.tool - 4, x: 1020, y: 560, s: 1.04},
+    {f: APP.tool + 6, x: 1040, y: 520, s: 1.08, ry: -2},
+    {f: APP.heal + 6, x: 1020, y: 540, s: 1.04},
+    {f: APP.fail + 4, x: 1040, y: 520, s: 1.08},
+    {f: APP.result + 6, x: 1040, y: 560, s: 1.08, ry: 2},
+    {f: APP.stats + 4, x: 960, y: 540, s: 1.0},
+    {f: 210, x: 980, y: 540, s: 1.05, ry: -3},
+  ];
   const f = (at: number, d = 8) => interpolate(frame, [at, at + d], [0, 1], {...clamp, easing: EASE.out});
   const part1 = frame < APP.heal;
   const suck = interpolate(frame, APP.suck, [0, 1], {...clamp, easing: EASE.inOut});
@@ -50,7 +62,7 @@ export const AppScene: React.FC = () => {
   const statusText = {run: 'Running…', fail: 'Run failed', fix: 'Repairing…', ok: '24 claims'}[tone];
 
   return (
-    <AbsoluteFill style={{opacity: Math.min(1, enter * 1.3) * (1 - exit), color: COLORS.ink}}>
+    <AbsoluteFill style={{...scene, color: COLORS.ink}}>
       <div style={{position: 'absolute', left: 120, top: 80}}>
         <Logo size={44} />
       </div>
@@ -60,15 +72,18 @@ export const AppScene: React.FC = () => {
         return (
           <div key={s.n} style={{position: 'absolute', left: 120, top: 330, width: 700, opacity: o, transform: `translateY(${(1 - o) * 26}px)`}}>
             <div style={{fontFamily: mono, fontSize: 22, color: COLORS.brand, fontWeight: 700}}>{s.n}</div>
-            <div style={{fontSize: 84, fontWeight: 600, letterSpacing: '-0.035em', lineHeight: 1.04, marginTop: 12}}>{s.title}</div>
+            <div style={{fontSize: 84, fontWeight: 600, letterSpacing: '-0.035em', lineHeight: 1.04, marginTop: 12}}>
+              <Rise text={s.title} at={s.at} stagger={3} />
+            </div>
             <div style={{fontSize: 30, color: COLORS.body, marginTop: 22, lineHeight: 1.4}}>{s.sub}</div>
           </div>
         );
       })}
 
+      <Camera keys={CAM} shake={kick(frame, APP.fail, 4) * 7}>
       {/* the agent chat */}
       {frame < APP.stats + 4 && (
-        <div style={{position: 'absolute', left: 880, top: 150, width: 920, height: 780, borderRadius: 24, background: '#FAF9F5', border: `1px solid ${COLORS.line}`, boxShadow: '0 40px 100px rgba(13,13,13,0.10)', padding: '30px 34px', overflow: 'hidden', transform: `translateY(${(1 - enter) * 60}px)`, opacity: 1 - interpolate(frame, [APP.stats - 4, APP.stats + 4], [0, 1], clamp)}}>
+        <div style={{position: 'absolute', left: 880, top: 150, width: 920, height: 780, borderRadius: 24, background: '#FAF9F5', border: `1px solid ${COLORS.line}`, boxShadow: '0 40px 100px rgba(13,13,13,0.10)', padding: '30px 34px', overflow: 'hidden', ...card3D(frame, 0, 'right', 18), opacity: Math.min(1, frame / 8) * (1 - interpolate(frame, [APP.stats - 4, APP.stats + 4], [0, 1], clamp))}}>
           <div style={{display: 'flex', gap: 8, marginBottom: 24}}>
             {['#FF5F57', '#FEBC2E', '#28C840'].map((c) => <span key={c} style={{width: 13, height: 13, borderRadius: 7, background: c}} />)}
           </div>
@@ -138,13 +153,14 @@ export const AppScene: React.FC = () => {
         ].map(([k, v], i) => {
           const p = spring({frame: frame - APP.stats - 4 - i * 5, fps, config: {damping: 14, stiffness: 160}});
           return (
-            <div key={k} style={{padding: '26px 34px', borderRadius: 20, background: '#fff', border: `1px solid ${COLORS.line}`, boxShadow: '0 20px 50px rgba(13,13,13,0.06)', opacity: Math.min(1, p), transform: `translateX(${(1 - Math.min(1, p)) * 60}px)`}}>
+            <div key={k} style={{padding: '26px 34px', borderRadius: 20, background: '#fff', border: `1px solid ${COLORS.line}`, boxShadow: '0 20px 50px rgba(13,13,13,0.06)', ...card3D(frame, APP.stats + 2 + i * 5, 'below', 14)}}>
               <div style={{fontSize: 54, fontWeight: 600, letterSpacing: '-0.03em', color: i === 0 ? COLORS.brand : COLORS.ink}}>{k}</div>
               <div style={{fontSize: 24, color: COLORS.body, marginTop: 4}}>{v}</div>
             </div>
           );
         })}
       </div>
+      </Camera>
     </AbsoluteFill>
   );
 };

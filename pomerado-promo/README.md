@@ -6,6 +6,12 @@ An unsolicited spec piece for [pomerado.ai](https://pomerado.ai). It uses their 
 
 **Hook (stat + split screen):** frame 0 is already a finished poster: "$41.01 vs 3¢" over two racing lanes. Pomerado's lane finishes at 1.3s, the browser agent's at 2.7s, then "No browser. Just an API."
 
+**Motion:** built with `src/components/Kinetic.tsx`, a toolkit distilled from frame-by-frame study of top launch films (Linear, Framer, Claude, Bolt, Notion, Superhuman):
+- A camera follows the action with whip-and-hold moves, 3D tilt and velocity-based motion blur.
+- Scenes change by zooming through with blur instead of crossfading.
+- Captions are revealed word by word from masks, and cards make 3D entrances.
+- Floating interface shards add depth of field, and impacts get a camera punch.
+
 | Time | Scene | What happens |
 |---|---|---|
 | 0–3.6s | Hook | The benchmark race, labelled "shown at 321× speed" as on their site |

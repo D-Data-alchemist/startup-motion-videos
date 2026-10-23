@@ -6,6 +6,12 @@ An unsolicited spec piece for [beam.win](https://beam.win). It uses their icon, 
 
 **Hook (demo-first):** the window is already mid-flight from a display-less Mac mini on frame 0, under "Agents on the Mac mini." It lands on the MacBook at 1.3s, gets a Dock icon, and the second line "Windows right here." pays it off.
 
+**Motion:** built with `src/components/Kinetic.tsx`, a toolkit distilled from frame-by-frame study of top launch films (Linear, Framer, Claude, Bolt, Notion, Superhuman):
+- A camera follows the action with whip-and-hold moves, 3D tilt and velocity-based motion blur.
+- Scenes change by zooming through with blur instead of crossfading.
+- Captions are revealed word by word from masks, and cards make 3D entrances.
+- Floating interface shards add depth of field, and impacts get a camera punch.
+
 | Time | Scene | What happens |
 |---|---|---|
 | 0–3.6s | Hook | Terminal window flies Mac mini → MacBook and lands with a Dock icon |
